@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "declarationDir": "dist/types",
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "inlineSources": true,
+    "inlineSourceMap": true,
+    "module": "node16",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "outDir": "./dist",
+    "strict": true,
+    "strictNullChecks": true,
+    "target": "es2020",
+    "resolveJsonModule": true
+  },
+  "include": ["tests"]
+}
