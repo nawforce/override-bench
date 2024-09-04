@@ -4,7 +4,9 @@
   "description": "Test of Apex method override behaviour",
   "scripts": {
     "only": "mocha",
-    "all": "mocha 'benchtests/**/*.ts'"
+    "all": "mocha 'benchtests/*.ts'",
+    "virtual": "mocha 'benchtests/overrideVirtual.ts'",
+    "abstract": "mocha 'benchtests/overrideAbstract.ts'"
   },
   "author": "Kevin Jones",
   "license": "UNLICENSED",
