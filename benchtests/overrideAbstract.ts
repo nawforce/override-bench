@@ -26,7 +26,6 @@ function displayVisibility(value: string): string {
   else return value;
 }
 
-/*
 const separateFileTests: TestDetails[] = [
   // super = implicit private
   {
@@ -159,7 +158,6 @@ const separateFileTests: TestDetails[] = [
     outcome: Outcome.SUPER_OVERRIDES,
   },
 ];
-*/
 
 const separateFileNoneOverrideTests: TestDetails[] = [
   // super = implicit private
@@ -294,7 +292,6 @@ const separateFileNoneOverrideTests: TestDetails[] = [
   },
 ];
 
-/*
 const sameFileTests: TestDetails[] = [
   // super = implicit private
   {
@@ -305,7 +302,7 @@ const sameFileTests: TestDetails[] = [
   {
     baseVisibility: "private",
     superVisibility: "",
-    outcome: Outcome.SUPER_OVERRIDE_IGNORED,
+    outcome: Outcome.OMGACK,
   },
   {
     baseVisibility: "protected",
@@ -331,7 +328,7 @@ const sameFileTests: TestDetails[] = [
   {
     baseVisibility: "private",
     superVisibility: "private",
-    outcome: Outcome.SUPER_OVERRIDE_IGNORED,
+    outcome: Outcome.OMGACK,
   },
   {
     baseVisibility: "protected",
@@ -357,7 +354,7 @@ const sameFileTests: TestDetails[] = [
   {
     baseVisibility: "private",
     superVisibility: "protected",
-    outcome: Outcome.SUPER_OVERRIDE_IGNORED,
+    outcome: Outcome.OMGACK,
   },
   {
     baseVisibility: "protected",
@@ -383,7 +380,7 @@ const sameFileTests: TestDetails[] = [
   {
     baseVisibility: "private",
     superVisibility: "public",
-    outcome: Outcome.SUPER_OVERRIDE_IGNORED,
+    outcome: Outcome.OMGACK,
   },
   {
     baseVisibility: "protected",
@@ -409,7 +406,7 @@ const sameFileTests: TestDetails[] = [
   {
     baseVisibility: "private",
     superVisibility: "global",
-    outcome: Outcome.SUPER_OVERRIDE_IGNORED,
+    outcome: Outcome.OMGACK,
   },
   {
     baseVisibility: "protected",
@@ -427,7 +424,6 @@ const sameFileTests: TestDetails[] = [
     outcome: Outcome.SUPER_OVERRIDES,
   },
 ];
-*/
 
 describe("Override Abstract Tests", async () => {
   let test: TransactionTestTemplate;
@@ -436,7 +432,6 @@ describe("Override Abstract Tests", async () => {
     test = await TransactionProcess.build("Something");
   });
 
-  /*
   separateFileTests.forEach((testDetails) => {
     const baseVisibilityDisplay = displayVisibility(testDetails.baseVisibility);
     const superVisibilityDisplay = displayVisibility(
@@ -501,7 +496,6 @@ describe("Override Abstract Tests", async () => {
       );
     });
   });
-  */
 
   separateFileNoneOverrideTests.forEach((testDetails) => {
     const baseVisibilityDisplay = displayVisibility(testDetails.baseVisibility);
@@ -577,24 +571,21 @@ describe("Override Abstract Tests", async () => {
     });
   });
 
-  /*
   sameFileTests.forEach((testDetails) => {
     const baseVisibilityDisplay = displayVisibility(testDetails.baseVisibility);
     const superVisibilityDisplay = displayVisibility(
       testDetails.superVisibility
     );
 
-    it(`Same files - Override ${baseVisibilityDisplay} virtual with ${superVisibilityDisplay} override is ${
+    it(`Same files - Override ${baseVisibilityDisplay} abstract with ${superVisibilityDisplay} override is ${
       Outcome[testDetails.outcome]
     }`, async () => {
-      const throwBase =
-        testDetails.outcome == Outcome.SUPER_OVERRIDES
-          ? "throw new TypeException();"
-          : "";
       const throwSuper =
         testDetails.outcome == Outcome.SUPER_OVERRIDE_IGNORED
           ? "throw new TypeException();"
           : "";
+      const baseClassVisibility =
+        testDetails.baseVisibility == "global" ? "global" : "public";
 
       try {
         await deploy(
@@ -603,7 +594,7 @@ describe("Override Abstract Tests", async () => {
             [
               "OverrideTest",
               `global class OverrideTest {
-                  global virtual class OverrideBase {public void entry() {myMethod();} ${testDetails.baseVisibility} virtual void myMethod() { ${throwBase} }} 
+                  ${baseClassVisibility}  abstract class OverrideBase {public void entry() {myMethod();} ${testDetails.baseVisibility} abstract void myMethod(); } 
                   global class OverrideSuper extends OverrideBase {${testDetails.superVisibility} override void myMethod() { ${throwSuper} }}
                 }`,
             ],
@@ -629,166 +620,204 @@ describe("Override Abstract Tests", async () => {
 
       if (
         testDetails.outcome != Outcome.SUPER_OVERRIDES &&
-        testDetails.outcome != Outcome.SUPER_OVERRIDE_IGNORED
+        testDetails.outcome != Outcome.SUPER_OVERRIDE_IGNORED &&
+        testDetails.outcome != Outcome.OMGACK
       )
         throw new Error("Expecting an exception");
 
-      await TransactionProcess.executeTestStep(
-        test,
-        await createApexExecutionTestStepFlow(
-          test.connection,
-          __dirname + "/apex-scripts/sameFile.apex",
-          {
-            flowName: "Same Classes",
-            action: `${baseVisibilityDisplay} ${superVisibilityDisplay} ${
-              Outcome[testDetails.outcome]
-            }`,
-          }
-        )
-      );
-    });
-  });
-
-  sameFileTests.forEach((testDetails) => {
-    const baseVisibilityDisplay = displayVisibility(testDetails.baseVisibility);
-    const superVisibilityDisplay = displayVisibility(
-      testDetails.superVisibility
-    );
-
-    it(`Same files extend Outer - Override ${baseVisibilityDisplay} virtual with ${superVisibilityDisplay} override is ${
-      Outcome[testDetails.outcome]
-    }`, async () => {
-      const throwBase =
-        testDetails.outcome == Outcome.SUPER_OVERRIDES
-          ? "throw new TypeException();"
-          : "";
-      const throwSuper =
-        testDetails.outcome == Outcome.SUPER_OVERRIDE_IGNORED
-          ? "throw new TypeException();"
-          : "";
-
+      let didThrow = false;
       try {
-        await deploy(
-          test.connection,
-          new Map([
-            [
-              "OverrideTest",
-              `global virtual class OverrideTest {
-                  public void entry() {myMethod();} ${testDetails.baseVisibility} virtual void myMethod() { ${throwBase} } 
-                  global class OverrideSuper extends OverrideTest {${testDetails.superVisibility} override void myMethod() { ${throwSuper} }}
-                }`,
-            ],
-          ])
+        await TransactionProcess.executeTestStep(
+          test,
+          await createApexExecutionTestStepFlow(
+            test.connection,
+            __dirname + "/apex-scripts/sameFile.apex",
+            {
+              flowName: "Sames Classes",
+              action: `${baseVisibilityDisplay} ${superVisibilityDisplay} ${
+                Outcome[testDetails.outcome]
+              }`,
+            }
+          )
         );
       } catch (ex) {
-        if (ex instanceof Error) {
-          if (
-            testDetails.outcome == Outcome.OVERRIDE_ON_NON_OVERRIDING &&
-            ex.message.includes("@Override specified for non-overriding method")
-          ) {
-            return;
-          } else if (
-            testDetails.outcome == Outcome.CANNOT_REDUCE_VISIBILITY &&
-            ex.message.includes("Cannot reduce the visibility of method")
-          ) {
-            return;
-          } else {
-            throw ex;
-          }
-        }
+        didThrow = true;
       }
 
-      if (
-        testDetails.outcome != Outcome.SUPER_OVERRIDES &&
-        testDetails.outcome != Outcome.SUPER_OVERRIDE_IGNORED
-      )
-        throw new Error("Expecting an exception");
-
-      await TransactionProcess.executeTestStep(
-        test,
-        await createApexExecutionTestStepFlow(
-          test.connection,
-          __dirname + "/apex-scripts/sameFileExtendOuter.apex",
-          {
-            flowName: "Same Classes Inner extends Outer",
-            action: `${baseVisibilityDisplay} ${superVisibilityDisplay} ${
-              Outcome[testDetails.outcome]
-            }`,
-          }
-        )
-      );
+      if (didThrow != (testDetails.outcome == Outcome.OMGACK))
+        throw Error("Script threw when not expected or didn't when it was");
     });
   });
 
-  sameFileTests.forEach((testDetails) => {
-    const baseVisibilityDisplay = displayVisibility(testDetails.baseVisibility);
-    const superVisibilityDisplay = displayVisibility(
-      testDetails.superVisibility
-    );
+  sameFileTests
+    .filter(
+      (testDetails) =>
+        testDetails.baseVisibility != "global" &&
+        testDetails.superVisibility != "global"
+    )
+    .forEach((testDetails) => {
+      const baseVisibilityDisplay = displayVisibility(
+        testDetails.baseVisibility
+      );
+      const superVisibilityDisplay = displayVisibility(
+        testDetails.superVisibility
+      );
 
-    it(`Same files extend Inner - Override ${baseVisibilityDisplay} virtual with ${superVisibilityDisplay} override is ${
-      Outcome[testDetails.outcome]
-    }`, async () => {
-      const throwBase =
-        testDetails.outcome == Outcome.SUPER_OVERRIDES
-          ? "throw new TypeException();"
-          : "";
-      const throwSuper =
-        testDetails.outcome == Outcome.SUPER_OVERRIDE_IGNORED
-          ? "throw new TypeException();"
-          : "";
+      it(`Same files extend Outer - Override ${baseVisibilityDisplay} abstract with ${superVisibilityDisplay} override is ${
+        Outcome[testDetails.outcome]
+      }`, async () => {
+        const throwSuper =
+          testDetails.outcome == Outcome.SUPER_OVERRIDE_IGNORED
+            ? "throw new TypeException();"
+            : "";
 
-      try {
-        await deploy(
-          test.connection,
-          new Map([
-            [
-              "OverrideTest",
-              `global class OverrideTest extends OverrideBase {
-                  global virtual class OverrideBase {public void entry() {myMethod();} ${testDetails.baseVisibility} virtual void myMethod() { ${throwBase} }} 
+        try {
+          await deploy(
+            test.connection,
+            new Map([
+              [
+                "OverrideTest",
+                `public abstract class OverrideTest {
+                  public void entry() {myMethod();} ${testDetails.baseVisibility} abstract void myMethod(); 
+                  public class OverrideSuper extends OverrideTest {${testDetails.superVisibility} override void myMethod() { ${throwSuper} }}
+                }`,
+              ],
+            ])
+          );
+        } catch (ex) {
+          if (ex instanceof Error) {
+            if (
+              testDetails.outcome == Outcome.OVERRIDE_ON_NON_OVERRIDING &&
+              ex.message.includes(
+                "@Override specified for non-overriding method"
+              )
+            ) {
+              return;
+            } else if (
+              testDetails.outcome == Outcome.CANNOT_REDUCE_VISIBILITY &&
+              ex.message.includes("Cannot reduce the visibility of method")
+            ) {
+              return;
+            } else {
+              throw ex;
+            }
+          }
+        }
+
+        if (
+          testDetails.outcome != Outcome.SUPER_OVERRIDES &&
+          testDetails.outcome != Outcome.SUPER_OVERRIDE_IGNORED &&
+          testDetails.outcome != Outcome.OMGACK
+        )
+          throw new Error("Expecting an exception");
+
+        let didThrow = false;
+        try {
+          await TransactionProcess.executeTestStep(
+            test,
+            await createApexExecutionTestStepFlow(
+              test.connection,
+              __dirname + "/apex-scripts/sameFileExtendOuter.apex",
+              {
+                flowName: "Same Classes Inner extends Outer",
+                action: `${baseVisibilityDisplay} ${superVisibilityDisplay} ${
+                  Outcome[testDetails.outcome]
+                }`,
+              }
+            )
+          );
+        } catch (ex) {
+          didThrow = true;
+        }
+
+        if (didThrow != (testDetails.outcome == Outcome.OMGACK))
+          throw Error("Script threw when not expected or didn't when it was");
+      });
+    });
+
+  sameFileTests
+    .filter(
+      (testDetails) =>
+        testDetails.baseVisibility != "global" &&
+        testDetails.superVisibility != "global"
+    )
+    .forEach((testDetails) => {
+      const baseVisibilityDisplay = displayVisibility(
+        testDetails.baseVisibility
+      );
+      const superVisibilityDisplay = displayVisibility(
+        testDetails.superVisibility
+      );
+
+      it(`Same files extend Inner - Override ${baseVisibilityDisplay} abstract with ${superVisibilityDisplay} override is ${
+        Outcome[testDetails.outcome]
+      }`, async () => {
+        const throwSuper =
+          testDetails.outcome == Outcome.SUPER_OVERRIDE_IGNORED
+            ? "throw new TypeException();"
+            : "";
+
+        try {
+          await deploy(
+            test.connection,
+            new Map([
+              [
+                "OverrideTest",
+                `public class OverrideTest extends OverrideBase {
+                  public abstract class OverrideBase {public void entry() {myMethod();} ${testDetails.baseVisibility} abstract void myMethod(); } 
                   ${testDetails.superVisibility} override void myMethod() { ${throwSuper} }
                 }`,
-            ],
-          ])
-        );
-      } catch (ex) {
-        if (ex instanceof Error) {
-          if (
-            testDetails.outcome == Outcome.OVERRIDE_ON_NON_OVERRIDING &&
-            ex.message.includes("@Override specified for non-overriding method")
-          ) {
-            return;
-          } else if (
-            testDetails.outcome == Outcome.CANNOT_REDUCE_VISIBILITY &&
-            ex.message.includes("Cannot reduce the visibility of method")
-          ) {
-            return;
-          } else {
-            throw ex;
+              ],
+            ])
+          );
+        } catch (ex) {
+          if (ex instanceof Error) {
+            if (
+              testDetails.outcome == Outcome.OVERRIDE_ON_NON_OVERRIDING &&
+              ex.message.includes(
+                "@Override specified for non-overriding method"
+              )
+            ) {
+              return;
+            } else if (
+              testDetails.outcome == Outcome.CANNOT_REDUCE_VISIBILITY &&
+              ex.message.includes("Cannot reduce the visibility of method")
+            ) {
+              return;
+            } else {
+              throw ex;
+            }
           }
         }
-      }
 
-      if (
-        testDetails.outcome != Outcome.SUPER_OVERRIDES &&
-        testDetails.outcome != Outcome.SUPER_OVERRIDE_IGNORED
-      )
-        throw new Error("Expecting an exception");
-
-      await TransactionProcess.executeTestStep(
-        test,
-        await createApexExecutionTestStepFlow(
-          test.connection,
-          __dirname + "/apex-scripts/sameFileExtendInner.apex",
-          {
-            flowName: "Same Classes Outer extends Inner",
-            action: `${baseVisibilityDisplay} ${superVisibilityDisplay} ${
-              Outcome[testDetails.outcome]
-            }`,
-          }
+        if (
+          testDetails.outcome != Outcome.SUPER_OVERRIDES &&
+          testDetails.outcome != Outcome.SUPER_OVERRIDE_IGNORED &&
+          testDetails.outcome != Outcome.OMGACK
         )
-      );
+          throw new Error("Expecting an exception");
+
+        let didThrow = false;
+        try {
+          await TransactionProcess.executeTestStep(
+            test,
+            await createApexExecutionTestStepFlow(
+              test.connection,
+              __dirname + "/apex-scripts/sameFileExtendInner.apex",
+              {
+                flowName: "Same Classes Outer extends Inner",
+                action: `${baseVisibilityDisplay} ${superVisibilityDisplay} ${
+                  Outcome[testDetails.outcome]
+                }`,
+              }
+            )
+          );
+        } catch (ex) {
+          didThrow = true;
+        }
+
+        if (didThrow != (testDetails.outcome == Outcome.OMGACK))
+          throw Error("Script threw when not expected or didn't when it was");
+      });
     });
-  });
-  */
 });
