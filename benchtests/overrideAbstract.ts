@@ -1,32 +1,13 @@
 import {
   TransactionTestTemplate,
   TransactionProcess,
-  createApexExecutionTestStepFlow,
 } from "@apexdevtools/benchmarker";
 import { deploy } from "./deploy";
+import { runApex } from "./runApex";
+import { Outcome } from "./outcome";
+import { displayVisibility, TestDescription } from "./testDescription";
 
-enum Outcome {
-  SUPER_OVERRIDES, // Deploys and call super method
-  SUPER_OVERRIDE_IGNORED, // Deploys and calls base method
-  OMGACK,
-  OVERRIDE_ON_NON_OVERRIDING, // @Override specified for non-overriding method
-  CANNOT_REDUCE_VISIBILITY, // Cannot reduce the visibility of method
-  CANNOT_BE_OVERRIDDEN, // Non-virtual, non-abstract methods cannot be overridden
-  OVERRIDE_REQUIRED, // Method must use the override keyword
-}
-
-interface TestDetails {
-  baseVisibility: string;
-  superVisibility: string;
-  outcome: Outcome;
-}
-
-function displayVisibility(value: string): string {
-  if (value == "") return "<implicit-private>";
-  else return value;
-}
-
-const separateFileTests: TestDetails[] = [
+const separateFileTests: TestDescription[] = [
   // super = implicit private
   {
     baseVisibility: "",
@@ -159,7 +140,7 @@ const separateFileTests: TestDetails[] = [
   },
 ];
 
-const separateFileNoneOverrideTests: TestDetails[] = [
+const separateFileNoneOverrideTests: TestDescription[] = [
   // super = implicit private
   {
     baseVisibility: "",
@@ -292,7 +273,7 @@ const separateFileNoneOverrideTests: TestDetails[] = [
   },
 ];
 
-const sameFileTests: TestDetails[] = [
+const sameFileTests: TestDescription[] = [
   // super = implicit private
   {
     baseVisibility: "",
@@ -474,26 +455,7 @@ describe("Override Abstract Tests", async () => {
           }
         }
       }
-
-      if (
-        testDetails.outcome != Outcome.SUPER_OVERRIDES &&
-        testDetails.outcome != Outcome.SUPER_OVERRIDE_IGNORED
-      )
-        throw new Error("Expecting an exception");
-
-      await TransactionProcess.executeTestStep(
-        test,
-        await createApexExecutionTestStepFlow(
-          test.connection,
-          __dirname + "/apex-scripts/separateFile.apex",
-          {
-            flowName: "Separate Classes",
-            action: `${baseVisibilityDisplay} ${superVisibilityDisplay} ${
-              Outcome[testDetails.outcome]
-            }`,
-          }
-        )
-      );
+      runApex(test, testDetails, "/apex-scripts/separateFile.apex");
     });
   });
 
@@ -540,34 +502,7 @@ describe("Override Abstract Tests", async () => {
         }
       }
 
-      if (
-        testDetails.outcome != Outcome.SUPER_OVERRIDES &&
-        testDetails.outcome != Outcome.SUPER_OVERRIDE_IGNORED &&
-        testDetails.outcome != Outcome.OMGACK
-      )
-        throw new Error("Expecting an exception");
-
-      let didThrow = false;
-      try {
-        await TransactionProcess.executeTestStep(
-          test,
-          await createApexExecutionTestStepFlow(
-            test.connection,
-            __dirname + "/apex-scripts/separateFile.apex",
-            {
-              flowName: "Separate Classes No Override",
-              action: `${baseVisibilityDisplay} ${superVisibilityDisplay} ${
-                Outcome[testDetails.outcome]
-              }`,
-            }
-          )
-        );
-      } catch (ex) {
-        didThrow = true;
-      }
-
-      if (didThrow != (testDetails.outcome == Outcome.OMGACK))
-        throw Error("Script threw when not expected or didn't when it was");
+      runApex(test, testDetails, "/apex-scripts/separateFile.apex");
     });
   });
 
@@ -618,34 +553,7 @@ describe("Override Abstract Tests", async () => {
         }
       }
 
-      if (
-        testDetails.outcome != Outcome.SUPER_OVERRIDES &&
-        testDetails.outcome != Outcome.SUPER_OVERRIDE_IGNORED &&
-        testDetails.outcome != Outcome.OMGACK
-      )
-        throw new Error("Expecting an exception");
-
-      let didThrow = false;
-      try {
-        await TransactionProcess.executeTestStep(
-          test,
-          await createApexExecutionTestStepFlow(
-            test.connection,
-            __dirname + "/apex-scripts/sameFile.apex",
-            {
-              flowName: "Sames Classes",
-              action: `${baseVisibilityDisplay} ${superVisibilityDisplay} ${
-                Outcome[testDetails.outcome]
-              }`,
-            }
-          )
-        );
-      } catch (ex) {
-        didThrow = true;
-      }
-
-      if (didThrow != (testDetails.outcome == Outcome.OMGACK))
-        throw Error("Script threw when not expected or didn't when it was");
+      runApex(test, testDetails, "/apex-scripts/sameFile.apex");
     });
   });
 
@@ -704,34 +612,7 @@ describe("Override Abstract Tests", async () => {
           }
         }
 
-        if (
-          testDetails.outcome != Outcome.SUPER_OVERRIDES &&
-          testDetails.outcome != Outcome.SUPER_OVERRIDE_IGNORED &&
-          testDetails.outcome != Outcome.OMGACK
-        )
-          throw new Error("Expecting an exception");
-
-        let didThrow = false;
-        try {
-          await TransactionProcess.executeTestStep(
-            test,
-            await createApexExecutionTestStepFlow(
-              test.connection,
-              __dirname + "/apex-scripts/sameFileExtendOuter.apex",
-              {
-                flowName: "Same Classes Inner extends Outer",
-                action: `${baseVisibilityDisplay} ${superVisibilityDisplay} ${
-                  Outcome[testDetails.outcome]
-                }`,
-              }
-            )
-          );
-        } catch (ex) {
-          didThrow = true;
-        }
-
-        if (didThrow != (testDetails.outcome == Outcome.OMGACK))
-          throw Error("Script threw when not expected or didn't when it was");
+        runApex(test, testDetails, "/apex-scripts/sameFileExtendOuter.apex");
       });
     });
 
@@ -790,34 +671,7 @@ describe("Override Abstract Tests", async () => {
           }
         }
 
-        if (
-          testDetails.outcome != Outcome.SUPER_OVERRIDES &&
-          testDetails.outcome != Outcome.SUPER_OVERRIDE_IGNORED &&
-          testDetails.outcome != Outcome.OMGACK
-        )
-          throw new Error("Expecting an exception");
-
-        let didThrow = false;
-        try {
-          await TransactionProcess.executeTestStep(
-            test,
-            await createApexExecutionTestStepFlow(
-              test.connection,
-              __dirname + "/apex-scripts/sameFileExtendInner.apex",
-              {
-                flowName: "Same Classes Outer extends Inner",
-                action: `${baseVisibilityDisplay} ${superVisibilityDisplay} ${
-                  Outcome[testDetails.outcome]
-                }`,
-              }
-            )
-          );
-        } catch (ex) {
-          didThrow = true;
-        }
-
-        if (didThrow != (testDetails.outcome == Outcome.OMGACK))
-          throw Error("Script threw when not expected or didn't when it was");
+        runApex(test, testDetails, "/apex-scripts/sameFileExtendInner.apex");
       });
     });
 });
