@@ -1,12 +1,8 @@
 import { Outcome } from "./outcome";
+import { Visibility } from "./visibility";
 
 export interface TestDescription {
-  baseVisibility: string;
-  superVisibility: string;
+  baseVisibility: Visibility;
+  superVisibility: Visibility;
   outcome: Outcome;
-}
-
-export function displayVisibility(value: string): string {
-  if (value == "") return "<implicit-private>";
-  else return value;
 }

@@ -4,13 +4,13 @@ import {
 } from "@apexdevtools/benchmarker";
 import { deploy } from "./deploy";
 import { Outcome } from "./outcome";
-import { displayVisibility } from "./testDescription";
 import { runApex } from "./runApex";
 import {
   virtualSameFileTests,
   virtualSeparateFileNoneOverrideTests,
   virtualSeparateFileTests,
 } from "./virtualResults";
+import { displayVisibility } from "./visibility";
 
 describe("Override Tests", async () => {
   let test: TransactionTestTemplate;

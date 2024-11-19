@@ -5,12 +5,12 @@ import {
 import { deploy } from "./deploy";
 import { runApex } from "./runApex";
 import { Outcome } from "./outcome";
-import { displayVisibility } from "./testDescription";
 import {
   abstractSameFileTests,
   abstractSeparateFileNoneOverrideTests,
   abstractSeparateFileTests,
 } from "./abstractResults";
+import { displayVisibility, Visibility } from "./visibility";
 
 describe("Override Abstract Tests", async () => {
   let test: TransactionTestTemplate;
@@ -25,7 +25,7 @@ describe("Override Abstract Tests", async () => {
       testDetails.superVisibility
     );
     const baseClassVisibility =
-      testDetails.baseVisibility == "global" ? "global" : "public";
+      testDetails.baseVisibility == Visibility.GLOBAL ? "global" : "public";
 
     it(`Separate files - Override ${baseVisibilityDisplay} abstract with ${superVisibilityDisplay} override is ${
       Outcome[testDetails.outcome]
@@ -71,7 +71,7 @@ describe("Override Abstract Tests", async () => {
       testDetails.superVisibility
     );
     const baseClassVisibility =
-      testDetails.baseVisibility == "global" ? "global" : "public";
+      testDetails.baseVisibility == Visibility.GLOBAL ? "global" : "public";
 
     it(`Separate files without override - Override ${baseVisibilityDisplay} abstract with ${superVisibilityDisplay} is ${
       Outcome[testDetails.outcome]
@@ -126,7 +126,7 @@ describe("Override Abstract Tests", async () => {
           ? "throw new TypeException();"
           : "";
       const baseClassVisibility =
-        testDetails.baseVisibility == "global" ? "global" : "public";
+        testDetails.baseVisibility == Visibility.GLOBAL ? "global" : "public";
 
       try {
         await deploy(
@@ -166,8 +166,8 @@ describe("Override Abstract Tests", async () => {
   abstractSameFileTests
     .filter(
       (testDetails) =>
-        testDetails.baseVisibility != "global" &&
-        testDetails.superVisibility != "global"
+        testDetails.baseVisibility != Visibility.GLOBAL &&
+        testDetails.superVisibility != Visibility.GLOBAL
     )
     .forEach((testDetails) => {
       const baseVisibilityDisplay = displayVisibility(
@@ -225,8 +225,8 @@ describe("Override Abstract Tests", async () => {
   abstractSameFileTests
     .filter(
       (testDetails) =>
-        testDetails.baseVisibility != "global" &&
-        testDetails.superVisibility != "global"
+        testDetails.baseVisibility != Visibility.GLOBAL &&
+        testDetails.superVisibility != Visibility.GLOBAL
     )
     .forEach((testDetails) => {
       const baseVisibilityDisplay = displayVisibility(

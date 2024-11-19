@@ -4,7 +4,8 @@ import {
   TransactionTestTemplate,
 } from "@apexdevtools/benchmarker";
 import { Outcome } from "./outcome";
-import { displayVisibility, TestDescription } from "./testDescription";
+import { TestDescription } from "./testDescription";
+import { displayVisibility } from "./visibility";
 
 export async function runApex(
   test: TransactionTestTemplate,
