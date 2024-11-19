@@ -5,406 +5,12 @@ import {
 import { deploy } from "./deploy";
 import { runApex } from "./runApex";
 import { Outcome } from "./outcome";
-import { displayVisibility, TestDescription } from "./testDescription";
-
-const separateFileTests: TestDescription[] = [
-  // super = implicit private
-  {
-    baseVisibility: "",
-    superVisibility: "",
-    outcome: Outcome.OVERRIDE_ON_NON_OVERRIDING,
-  },
-  {
-    baseVisibility: "private",
-    superVisibility: "",
-    outcome: Outcome.OVERRIDE_ON_NON_OVERRIDING,
-  },
-  {
-    baseVisibility: "protected",
-    superVisibility: "",
-    outcome: Outcome.CANNOT_REDUCE_VISIBILITY,
-  },
-  {
-    baseVisibility: "public",
-    superVisibility: "",
-    outcome: Outcome.CANNOT_REDUCE_VISIBILITY,
-  },
-  {
-    baseVisibility: "global",
-    superVisibility: "",
-    outcome: Outcome.CANNOT_REDUCE_VISIBILITY,
-  },
-  // super = private
-  {
-    baseVisibility: "",
-    superVisibility: "private",
-    outcome: Outcome.OVERRIDE_ON_NON_OVERRIDING,
-  },
-  {
-    baseVisibility: "private",
-    superVisibility: "private",
-    outcome: Outcome.OVERRIDE_ON_NON_OVERRIDING,
-  },
-  {
-    baseVisibility: "protected",
-    superVisibility: "private",
-    outcome: Outcome.CANNOT_REDUCE_VISIBILITY,
-  },
-  {
-    baseVisibility: "public",
-    superVisibility: "private",
-    outcome: Outcome.CANNOT_REDUCE_VISIBILITY,
-  },
-  {
-    baseVisibility: "global",
-    superVisibility: "private",
-    outcome: Outcome.CANNOT_REDUCE_VISIBILITY,
-  },
-  // super = protected
-  {
-    baseVisibility: "",
-    superVisibility: "protected",
-    outcome: Outcome.OVERRIDE_ON_NON_OVERRIDING,
-  },
-  {
-    baseVisibility: "private",
-    superVisibility: "protected",
-    outcome: Outcome.OVERRIDE_ON_NON_OVERRIDING,
-  },
-  {
-    baseVisibility: "protected",
-    superVisibility: "protected",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "public",
-    superVisibility: "protected",
-    outcome: Outcome.CANNOT_REDUCE_VISIBILITY,
-  },
-  {
-    baseVisibility: "global",
-    superVisibility: "protected",
-    outcome: Outcome.CANNOT_REDUCE_VISIBILITY,
-  },
-  // super = public
-  {
-    baseVisibility: "",
-    superVisibility: "public",
-    outcome: Outcome.OVERRIDE_ON_NON_OVERRIDING,
-  },
-  {
-    baseVisibility: "private",
-    superVisibility: "public",
-    outcome: Outcome.OVERRIDE_ON_NON_OVERRIDING,
-  },
-  {
-    baseVisibility: "protected",
-    superVisibility: "public",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "public",
-    superVisibility: "public",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "global",
-    superVisibility: "public",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  // super = global
-  {
-    baseVisibility: "",
-    superVisibility: "global",
-    outcome: Outcome.OVERRIDE_ON_NON_OVERRIDING,
-  },
-  {
-    baseVisibility: "private",
-    superVisibility: "global",
-    outcome: Outcome.OVERRIDE_ON_NON_OVERRIDING,
-  },
-  {
-    baseVisibility: "protected",
-    superVisibility: "global",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "public",
-    superVisibility: "global",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "global",
-    superVisibility: "global",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-];
-
-const separateFileNoneOverrideTests: TestDescription[] = [
-  // super = implicit private
-  {
-    baseVisibility: "",
-    superVisibility: "",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "private",
-    superVisibility: "",
-    outcome: Outcome.OMGACK,
-  },
-  {
-    baseVisibility: "protected",
-    superVisibility: "",
-    outcome: Outcome.OVERRIDE_REQUIRED,
-  },
-  {
-    baseVisibility: "public",
-    superVisibility: "",
-    outcome: Outcome.OVERRIDE_REQUIRED,
-  },
-  {
-    baseVisibility: "global",
-    superVisibility: "",
-    outcome: Outcome.OVERRIDE_REQUIRED,
-  },
-  // super = private
-  {
-    baseVisibility: "",
-    superVisibility: "private",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "private",
-    superVisibility: "private",
-    outcome: Outcome.OMGACK,
-  },
-  {
-    baseVisibility: "protected",
-    superVisibility: "private",
-    outcome: Outcome.OVERRIDE_REQUIRED,
-  },
-  {
-    baseVisibility: "public",
-    superVisibility: "private",
-    outcome: Outcome.OVERRIDE_REQUIRED,
-  },
-  {
-    baseVisibility: "global",
-    superVisibility: "private",
-    outcome: Outcome.OVERRIDE_REQUIRED,
-  },
-  // super = protected
-  {
-    baseVisibility: "",
-    superVisibility: "protected",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "private",
-    superVisibility: "protected",
-    outcome: Outcome.OMGACK,
-  },
-  {
-    baseVisibility: "protected",
-    superVisibility: "protected",
-    outcome: Outcome.OVERRIDE_REQUIRED,
-  },
-  {
-    baseVisibility: "public",
-    superVisibility: "protected",
-    outcome: Outcome.OVERRIDE_REQUIRED,
-  },
-  {
-    baseVisibility: "global",
-    superVisibility: "protected",
-    outcome: Outcome.OVERRIDE_REQUIRED,
-  },
-  // super = public
-  {
-    baseVisibility: "",
-    superVisibility: "public",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "private",
-    superVisibility: "public",
-    outcome: Outcome.OMGACK,
-  },
-  {
-    baseVisibility: "protected",
-    superVisibility: "public",
-    outcome: Outcome.OVERRIDE_REQUIRED,
-  },
-  {
-    baseVisibility: "public",
-    superVisibility: "public",
-    outcome: Outcome.OVERRIDE_REQUIRED,
-  },
-  {
-    baseVisibility: "global",
-    superVisibility: "public",
-    outcome: Outcome.OVERRIDE_REQUIRED,
-  },
-  // super = global
-  {
-    baseVisibility: "",
-    superVisibility: "global",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "private",
-    superVisibility: "global",
-    outcome: Outcome.OMGACK,
-  },
-  {
-    baseVisibility: "protected",
-    superVisibility: "global",
-    outcome: Outcome.OVERRIDE_REQUIRED,
-  },
-  {
-    baseVisibility: "public",
-    superVisibility: "global",
-    outcome: Outcome.OVERRIDE_REQUIRED,
-  },
-  {
-    baseVisibility: "global",
-    superVisibility: "global",
-    outcome: Outcome.OVERRIDE_REQUIRED,
-  },
-];
-
-const sameFileTests: TestDescription[] = [
-  // super = implicit private
-  {
-    baseVisibility: "",
-    superVisibility: "",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "private",
-    superVisibility: "",
-    outcome: Outcome.OMGACK,
-  },
-  {
-    baseVisibility: "protected",
-    superVisibility: "",
-    outcome: Outcome.CANNOT_REDUCE_VISIBILITY,
-  },
-  {
-    baseVisibility: "public",
-    superVisibility: "",
-    outcome: Outcome.CANNOT_REDUCE_VISIBILITY,
-  },
-  {
-    baseVisibility: "global",
-    superVisibility: "",
-    outcome: Outcome.CANNOT_REDUCE_VISIBILITY,
-  },
-  // super = private
-  {
-    baseVisibility: "",
-    superVisibility: "private",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "private",
-    superVisibility: "private",
-    outcome: Outcome.OMGACK,
-  },
-  {
-    baseVisibility: "protected",
-    superVisibility: "private",
-    outcome: Outcome.CANNOT_REDUCE_VISIBILITY,
-  },
-  {
-    baseVisibility: "public",
-    superVisibility: "private",
-    outcome: Outcome.CANNOT_REDUCE_VISIBILITY,
-  },
-  {
-    baseVisibility: "global",
-    superVisibility: "private",
-    outcome: Outcome.CANNOT_REDUCE_VISIBILITY,
-  },
-  // super = protected
-  {
-    baseVisibility: "",
-    superVisibility: "protected",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "private",
-    superVisibility: "protected",
-    outcome: Outcome.OMGACK,
-  },
-  {
-    baseVisibility: "protected",
-    superVisibility: "protected",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "public",
-    superVisibility: "protected",
-    outcome: Outcome.CANNOT_REDUCE_VISIBILITY,
-  },
-  {
-    baseVisibility: "global",
-    superVisibility: "protected",
-    outcome: Outcome.CANNOT_REDUCE_VISIBILITY,
-  },
-  // super = public
-  {
-    baseVisibility: "",
-    superVisibility: "public",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "private",
-    superVisibility: "public",
-    outcome: Outcome.OMGACK,
-  },
-  {
-    baseVisibility: "protected",
-    superVisibility: "public",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "public",
-    superVisibility: "public",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "global",
-    superVisibility: "public",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  // super = global
-  {
-    baseVisibility: "",
-    superVisibility: "global",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "private",
-    superVisibility: "global",
-    outcome: Outcome.OMGACK,
-  },
-  {
-    baseVisibility: "protected",
-    superVisibility: "global",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "public",
-    superVisibility: "global",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-  {
-    baseVisibility: "global",
-    superVisibility: "global",
-    outcome: Outcome.SUPER_OVERRIDES,
-  },
-];
+import { displayVisibility } from "./testDescription";
+import {
+  abstractSameFileTests,
+  abstractSeparateFileNoneOverrideTests,
+  abstractSeparateFileTests,
+} from "./abstractResults";
 
 describe("Override Abstract Tests", async () => {
   let test: TransactionTestTemplate;
@@ -413,7 +19,7 @@ describe("Override Abstract Tests", async () => {
     test = await TransactionProcess.build("Something");
   });
 
-  separateFileTests.forEach((testDetails) => {
+  abstractSeparateFileTests.forEach((testDetails) => {
     const baseVisibilityDisplay = displayVisibility(testDetails.baseVisibility);
     const superVisibilityDisplay = displayVisibility(
       testDetails.superVisibility
@@ -459,7 +65,7 @@ describe("Override Abstract Tests", async () => {
     });
   });
 
-  separateFileNoneOverrideTests.forEach((testDetails) => {
+  abstractSeparateFileNoneOverrideTests.forEach((testDetails) => {
     const baseVisibilityDisplay = displayVisibility(testDetails.baseVisibility);
     const superVisibilityDisplay = displayVisibility(
       testDetails.superVisibility
@@ -506,7 +112,7 @@ describe("Override Abstract Tests", async () => {
     });
   });
 
-  sameFileTests.forEach((testDetails) => {
+  abstractSameFileTests.forEach((testDetails) => {
     const baseVisibilityDisplay = displayVisibility(testDetails.baseVisibility);
     const superVisibilityDisplay = displayVisibility(
       testDetails.superVisibility
@@ -557,7 +163,7 @@ describe("Override Abstract Tests", async () => {
     });
   });
 
-  sameFileTests
+  abstractSameFileTests
     .filter(
       (testDetails) =>
         testDetails.baseVisibility != "global" &&
@@ -616,7 +222,7 @@ describe("Override Abstract Tests", async () => {
       });
     });
 
-  sameFileTests
+  abstractSameFileTests
     .filter(
       (testDetails) =>
         testDetails.baseVisibility != "global" &&
