@@ -2,8 +2,9 @@ import { expect } from "chai";
 import { Outcome } from "./outcome";
 import {
   virtualSameFileTests,
-  virtualSeparateFileNoneOverrideTests,
   virtualSeparateFileTests,
+  virtualSeparateFileNoModifiersTests,
+  virtualSeparateFileVirtualOnlyModifiersTests,
 } from "./virtualResults";
 import { displayVisibility, Visibility } from "./visibility";
 import {
@@ -35,13 +36,11 @@ function simulate(
     baseVisibility == Visibility.EXPLICIT_PRIVATE;
 
   if (!isPrivate) {
-    if (baseModifier == BaseModifier.NONE) return Outcome.CANNOT_BE_OVERRIDDEN;
-
-    if (
-      baseModifier == BaseModifier.ABSTRACT &&
-      superModifier == SuperModifier.NONE
-    )
+    if (baseModifier == BaseModifier.NONE) {
+      return Outcome.CANNOT_BE_OVERRIDDEN;
+    } else if (superModifier == SuperModifier.NONE) {
       return Outcome.OVERRIDE_REQUIRED;
+    }
   }
 
   if (isVisibilityReduced(baseVisibility, superVisibility))
@@ -108,7 +107,7 @@ describe("Simulate Tests", async () => {
     });
   });
 
-  virtualSeparateFileNoneOverrideTests.forEach((testDetails) => {
+  virtualSeparateFileNoModifiersTests.forEach((testDetails) => {
     const baseVisibilityDisplay = displayVisibility(testDetails.baseVisibility);
     const superVisibilityDisplay = displayVisibility(
       testDetails.superVisibility
@@ -122,6 +121,27 @@ describe("Simulate Tests", async () => {
           false,
           testDetails.baseVisibility,
           BaseModifier.NONE,
+          testDetails.superVisibility,
+          SuperModifier.NONE
+        )
+      ).to.be.equal(testDetails.outcome);
+    });
+  });
+
+  virtualSeparateFileVirtualOnlyModifiersTests.forEach((testDetails) => {
+    const baseVisibilityDisplay = displayVisibility(testDetails.baseVisibility);
+    const superVisibilityDisplay = displayVisibility(
+      testDetails.superVisibility
+    );
+
+    it(`Virtual Separate files without override - Override ${baseVisibilityDisplay} virtual with ${superVisibilityDisplay} override is ${
+      Outcome[testDetails.outcome]
+    }`, async () => {
+      expect(
+        simulate(
+          false,
+          testDetails.baseVisibility,
+          BaseModifier.VIRTUAL,
           testDetails.superVisibility,
           SuperModifier.NONE
         )

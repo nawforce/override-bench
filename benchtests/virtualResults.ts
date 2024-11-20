@@ -135,7 +135,7 @@ export const virtualSeparateFileTests: TestDescription[] = [
   },
 ];
 
-export const virtualSeparateFileNoneOverrideTests: TestDescription[] = [
+export const virtualSeparateFileNoModifiersTests: TestDescription[] = [
   // super = implicit private
   {
     baseVisibility: Visibility.IMPLICIT_PRIVATE,
@@ -265,6 +265,139 @@ export const virtualSeparateFileNoneOverrideTests: TestDescription[] = [
     baseVisibility: Visibility.GLOBAL,
     superVisibility: Visibility.GLOBAL,
     outcome: Outcome.CANNOT_BE_OVERRIDDEN,
+  },
+];
+
+export const virtualSeparateFileVirtualOnlyModifiersTests: TestDescription[] = [
+  // super = implicit private
+  {
+    baseVisibility: Visibility.IMPLICIT_PRIVATE,
+    superVisibility: Visibility.IMPLICIT_PRIVATE,
+    outcome: Outcome.SUPER_OVERRIDES,
+  },
+  {
+    baseVisibility: Visibility.EXPLICIT_PRIVATE,
+    superVisibility: Visibility.IMPLICIT_PRIVATE,
+    outcome: Outcome.SUPER_OVERRIDE_IGNORED,
+  },
+  {
+    baseVisibility: Visibility.PROTECTED,
+    superVisibility: Visibility.IMPLICIT_PRIVATE,
+    outcome: Outcome.OVERRIDE_REQUIRED,
+  },
+  {
+    baseVisibility: Visibility.PUBLIC,
+    superVisibility: Visibility.IMPLICIT_PRIVATE,
+    outcome: Outcome.OVERRIDE_REQUIRED,
+  },
+  {
+    baseVisibility: Visibility.GLOBAL,
+    superVisibility: Visibility.IMPLICIT_PRIVATE,
+    outcome: Outcome.OVERRIDE_REQUIRED,
+  },
+  // super = private
+  {
+    baseVisibility: Visibility.IMPLICIT_PRIVATE,
+    superVisibility: Visibility.EXPLICIT_PRIVATE,
+    outcome: Outcome.SUPER_OVERRIDES,
+  },
+  {
+    baseVisibility: Visibility.EXPLICIT_PRIVATE,
+    superVisibility: Visibility.EXPLICIT_PRIVATE,
+    outcome: Outcome.SUPER_OVERRIDE_IGNORED,
+  },
+  {
+    baseVisibility: Visibility.PROTECTED,
+    superVisibility: Visibility.EXPLICIT_PRIVATE,
+    outcome: Outcome.OVERRIDE_REQUIRED,
+  },
+  {
+    baseVisibility: Visibility.PUBLIC,
+    superVisibility: Visibility.EXPLICIT_PRIVATE,
+    outcome: Outcome.OVERRIDE_REQUIRED,
+  },
+  {
+    baseVisibility: Visibility.GLOBAL,
+    superVisibility: Visibility.EXPLICIT_PRIVATE,
+    outcome: Outcome.OVERRIDE_REQUIRED,
+  },
+  // super = protected
+  {
+    baseVisibility: Visibility.IMPLICIT_PRIVATE,
+    superVisibility: Visibility.PROTECTED,
+    outcome: Outcome.SUPER_OVERRIDES,
+  },
+  {
+    baseVisibility: Visibility.EXPLICIT_PRIVATE,
+    superVisibility: Visibility.PROTECTED,
+    outcome: Outcome.SUPER_OVERRIDE_IGNORED,
+  },
+  {
+    baseVisibility: Visibility.PROTECTED,
+    superVisibility: Visibility.PROTECTED,
+    outcome: Outcome.OVERRIDE_REQUIRED,
+  },
+  {
+    baseVisibility: Visibility.PUBLIC,
+    superVisibility: Visibility.PROTECTED,
+    outcome: Outcome.OVERRIDE_REQUIRED,
+  },
+  {
+    baseVisibility: Visibility.GLOBAL,
+    superVisibility: Visibility.PROTECTED,
+    outcome: Outcome.OVERRIDE_REQUIRED,
+  },
+  // super = public
+  {
+    baseVisibility: Visibility.IMPLICIT_PRIVATE,
+    superVisibility: Visibility.PUBLIC,
+    outcome: Outcome.SUPER_OVERRIDES,
+  },
+  {
+    baseVisibility: Visibility.EXPLICIT_PRIVATE,
+    superVisibility: Visibility.PUBLIC,
+    outcome: Outcome.SUPER_OVERRIDE_IGNORED,
+  },
+  {
+    baseVisibility: Visibility.PROTECTED,
+    superVisibility: Visibility.PUBLIC,
+    outcome: Outcome.OVERRIDE_REQUIRED,
+  },
+  {
+    baseVisibility: Visibility.PUBLIC,
+    superVisibility: Visibility.PUBLIC,
+    outcome: Outcome.OVERRIDE_REQUIRED,
+  },
+  {
+    baseVisibility: Visibility.GLOBAL,
+    superVisibility: Visibility.PUBLIC,
+    outcome: Outcome.OVERRIDE_REQUIRED,
+  },
+  // super = global
+  {
+    baseVisibility: Visibility.IMPLICIT_PRIVATE,
+    superVisibility: Visibility.GLOBAL,
+    outcome: Outcome.SUPER_OVERRIDES,
+  },
+  {
+    baseVisibility: Visibility.EXPLICIT_PRIVATE,
+    superVisibility: Visibility.GLOBAL,
+    outcome: Outcome.SUPER_OVERRIDE_IGNORED,
+  },
+  {
+    baseVisibility: Visibility.PROTECTED,
+    superVisibility: Visibility.GLOBAL,
+    outcome: Outcome.OVERRIDE_REQUIRED,
+  },
+  {
+    baseVisibility: Visibility.PUBLIC,
+    superVisibility: Visibility.GLOBAL,
+    outcome: Outcome.OVERRIDE_REQUIRED,
+  },
+  {
+    baseVisibility: Visibility.GLOBAL,
+    superVisibility: Visibility.GLOBAL,
+    outcome: Outcome.OVERRIDE_REQUIRED,
   },
 ];
 

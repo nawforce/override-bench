@@ -10,7 +10,7 @@ import {
   abstractSeparateFileNoneOverrideTests,
   abstractSeparateFileTests,
 } from "./abstractResults";
-import { displayVisibility, Visibility } from "./visibility";
+import { displayVisibility, Visibility, visibilityKeyword } from "./visibility";
 
 describe("Override Abstract Tests", async () => {
   let test: TransactionTestTemplate;
@@ -36,11 +36,15 @@ describe("Override Abstract Tests", async () => {
           new Map([
             [
               "OverrideBase",
-              `${baseClassVisibility} abstract class OverrideBase {public void entry() {myMethod();} ${testDetails.baseVisibility} abstract void myMethod();}`,
+              `${baseClassVisibility} abstract class OverrideBase {public void entry() {myMethod();} ${visibilityKeyword(
+                testDetails.baseVisibility
+              )} abstract void myMethod();}`,
             ],
             [
               "OverrideSuper",
-              `global class OverrideSuper extends OverrideBase {${testDetails.superVisibility} override void myMethod() { }}`,
+              `global class OverrideSuper extends OverrideBase {${visibilityKeyword(
+                testDetails.superVisibility
+              )} override void myMethod() { }}`,
             ],
           ])
         );
@@ -73,7 +77,7 @@ describe("Override Abstract Tests", async () => {
     const baseClassVisibility =
       testDetails.baseVisibility == Visibility.GLOBAL ? "global" : "public";
 
-    it(`Separate files without override - Override ${baseVisibilityDisplay} abstract with ${superVisibilityDisplay} is ${
+    it(`Abstract Separate files without override - Override ${baseVisibilityDisplay} abstract with ${superVisibilityDisplay} is ${
       Outcome[testDetails.outcome]
     }`, async () => {
       const throwSuper =
@@ -87,11 +91,15 @@ describe("Override Abstract Tests", async () => {
           new Map([
             [
               "OverrideBase",
-              `${baseClassVisibility} abstract class OverrideBase {public void entry() {myMethod();} ${testDetails.baseVisibility} abstract void myMethod(); }`,
+              `${baseClassVisibility} abstract class OverrideBase {public void entry() {myMethod();} ${visibilityKeyword(
+                testDetails.baseVisibility
+              )} abstract void myMethod(); }`,
             ],
             [
               "OverrideSuper",
-              `global virtual class OverrideSuper extends OverrideBase {${testDetails.superVisibility} void myMethod() { ${throwSuper} }}`,
+              `global virtual class OverrideSuper extends OverrideBase {${visibilityKeyword(
+                testDetails.superVisibility
+              )} void myMethod() { ${throwSuper} }}`,
             ],
           ])
         );
@@ -118,7 +126,7 @@ describe("Override Abstract Tests", async () => {
       testDetails.superVisibility
     );
 
-    it(`Same files - Override ${baseVisibilityDisplay} abstract with ${superVisibilityDisplay} override is ${
+    it(`Abstract Same files - Override ${baseVisibilityDisplay} abstract with ${superVisibilityDisplay} override is ${
       Outcome[testDetails.outcome]
     }`, async () => {
       const throwSuper =
@@ -135,8 +143,12 @@ describe("Override Abstract Tests", async () => {
             [
               "OverrideTest",
               `global class OverrideTest {
-                  ${baseClassVisibility}  abstract class OverrideBase {public void entry() {myMethod();} ${testDetails.baseVisibility} abstract void myMethod(); } 
-                  global class OverrideSuper extends OverrideBase {${testDetails.superVisibility} override void myMethod() { ${throwSuper} }}
+                  ${baseClassVisibility}  abstract class OverrideBase {public void entry() {myMethod();} ${visibilityKeyword(
+                testDetails.baseVisibility
+              )} abstract void myMethod(); } 
+                  global class OverrideSuper extends OverrideBase {${visibilityKeyword(
+                    testDetails.superVisibility
+                  )} override void myMethod() { ${throwSuper} }}
                 }`,
             ],
           ])
@@ -177,7 +189,7 @@ describe("Override Abstract Tests", async () => {
         testDetails.superVisibility
       );
 
-      it(`Same files extend Outer - Override ${baseVisibilityDisplay} abstract with ${superVisibilityDisplay} override is ${
+      it(`Abstract Same files extend Outer - Override ${baseVisibilityDisplay} abstract with ${superVisibilityDisplay} override is ${
         Outcome[testDetails.outcome]
       }`, async () => {
         const throwSuper =
@@ -192,8 +204,12 @@ describe("Override Abstract Tests", async () => {
               [
                 "OverrideTest",
                 `public abstract class OverrideTest {
-                  public void entry() {myMethod();} ${testDetails.baseVisibility} abstract void myMethod(); 
-                  public class OverrideSuper extends OverrideTest {${testDetails.superVisibility} override void myMethod() { ${throwSuper} }}
+                  public void entry() {myMethod();} ${visibilityKeyword(
+                    testDetails.baseVisibility
+                  )} abstract void myMethod(); 
+                  public class OverrideSuper extends OverrideTest {${visibilityKeyword(
+                    testDetails.superVisibility
+                  )} override void myMethod() { ${throwSuper} }}
                 }`,
               ],
             ])
@@ -236,7 +252,7 @@ describe("Override Abstract Tests", async () => {
         testDetails.superVisibility
       );
 
-      it(`Same files extend Inner - Override ${baseVisibilityDisplay} abstract with ${superVisibilityDisplay} override is ${
+      it(`Abstract Same files extend Inner - Override ${baseVisibilityDisplay} abstract with ${superVisibilityDisplay} override is ${
         Outcome[testDetails.outcome]
       }`, async () => {
         const throwSuper =
@@ -251,8 +267,12 @@ describe("Override Abstract Tests", async () => {
               [
                 "OverrideTest",
                 `public class OverrideTest extends OverrideBase {
-                  public abstract class OverrideBase {public void entry() {myMethod();} ${testDetails.baseVisibility} abstract void myMethod(); } 
-                  ${testDetails.superVisibility} override void myMethod() { ${throwSuper} }
+                  public abstract class OverrideBase {public void entry() {myMethod();} ${visibilityKeyword(
+                    testDetails.baseVisibility
+                  )} abstract void myMethod(); } 
+                  ${visibilityKeyword(
+                    testDetails.superVisibility
+                  )} override void myMethod() { ${throwSuper} }
                 }`,
               ],
             ])
